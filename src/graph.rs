@@ -31,3 +31,5 @@ impl Graph {
         });
     }
 }
+
+pub fn is_clan(graph: Graph) -> bool {}
