@@ -32,4 +32,4 @@ impl Graph {
     }
 }
 
-pub fn is_clan(graph: Graph) -> bool {}
+pub fn is_clique(graph: Graph) -> bool {}
