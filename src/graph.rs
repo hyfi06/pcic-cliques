@@ -1,10 +1,18 @@
 pub struct Graph {
     nodes: Vec<usize>,
-    edges: Vec<(usize, usize)>,
+    adjacency: Vec<usize>,
+}
+
+pub struct SubGraph {
+    nodes: Vec<usize>,
+    adjacency: &Vec<usize>,
 }
 
 impl Graph {
-    pub fn iter_subgraph(self) -> impl Iterator<Item = Graph> {
+    pub fn new() -> Self {
+        
+    }
+    pub fn iter_subgraph(self) -> impl Iterator<Item = SubGraph> {
         let mut state: usize = 0;
         let max_state: usize = 1 << self.edges.len();
         return std::iter::from_fn(move || {
@@ -18,14 +26,8 @@ impl Graph {
                 .filter(|(i, _)| (state >> i) & 1 == 1)
                 .map(|(_, item)| item.clone())
                 .collect();
-            let edges: Vec<(usize, usize)> = self
-                .edges
-                .iter()
-                .filter(|(a, b)| nodes.contains(a) && nodes.contains(b))
-                .map(|edge| edge.clone())
-                .collect();
 
-            let subgraph = Self { nodes, edges };
+            let subgraph = SubGraph { nodes, &self.adjacency };
             state += 1;
             return Some(subgraph);
         });
