@@ -3,15 +3,29 @@ pub struct Graph {
     adjacency: Vec<usize>,
 }
 
-pub struct SubGraph {
+
+pub struct SubGraph<'a> {
     nodes: Vec<usize>,
-    adjacency: &Vec<usize>,
+    adjacency: &'a Vec<usize>,
 }
 
+
 impl Graph {
-    pub fn new() -> Self {
+    pub fn new(input:(Vec<usize>, Vec<(usize,usize)>)) -> Self {
+        let nodes = input.0;
+        let edges = input.1;
+        let n = nodes.len();
         
+        let mut adjacency = vec![0; n]; // Cada índice es un nodo y almacena conexiones en bits
+        
+        for (u, v) in edges {
+            adjacency[u] |= 1 << v;
+            adjacency[v] |= 1 << u;
+        }
+
+        Self { nodes, adjacency }
     }
+    
     pub fn iter_subgraph(self) -> impl Iterator<Item = SubGraph> {
         let mut state: usize = 0;
         let max_state: usize = 1 << self.edges.len();
