@@ -99,7 +99,7 @@ pub fn print_result(cliques: Vec<usize>, graph: &Graph, elapsed: Duration) {
         .collect();
 
     println!("{}", "=".repeat(50));
-    graph.print_ascii_graph(80);
+    graph.print_ascii_graph(100);
     println!("{:?}", graph.nodes);
     println!("Cardinalidad de cliques máximos: {}.", max_clique);
     print!("{} cliques máximos: ", max_cliques.len());
