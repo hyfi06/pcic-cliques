@@ -4,7 +4,6 @@ use std::f64::consts::PI;
 pub struct Graph {
     pub nodes: Vec<usize>,
     pub adjacency: Vec<usize>,
-    pub cliques: Vec<(usize, u32, u32)>,
 }
 
 impl Graph {
@@ -20,11 +19,7 @@ impl Graph {
             adjacency[v] |= 1 << u;
         }
 
-        Self {
-            nodes,
-            adjacency,
-            cliques: Vec::new(),
-        }
+        Self { nodes, adjacency }
     }
 
     pub fn print_ascii_graph(&self, size: usize) {
@@ -32,7 +27,7 @@ impl Graph {
         let radius = size as f64 / 2.0;
         let center = (radius, radius);
 
-        let mut grid = vec![vec![' '; size + 1]; size];
+        let mut grid = vec![vec![' '; size + 1]; size + 1];
 
         let mut positions = vec![];
         for i in 0..n {
@@ -49,16 +44,46 @@ impl Graph {
             for j in 0..n {
                 if (adj >> j) & 1 == 1 {
                     let (x2, y2) = positions[j];
-                    let dx = (x2 as isize - x1 as isize).abs();
-                    let dy = (y2 as isize - y1 as isize).abs();
-                    let steps = dx.max(dy);
-                    for k in 0..=steps {
-                        let px = x1 as isize + k * (x2 as isize - x1 as isize) / steps;
-                        let py = y1 as isize + k * (y2 as isize - y1 as isize) / steps;
-                        if (px, py) != (x1 as isize, y1 as isize)
-                            && (px, py) != (x2 as isize, y2 as isize)
-                        {
-                            grid[py as usize][px as usize] = '.';
+                    let mut x = x1 as isize;
+                    let mut y = y1 as isize;
+                    let dx = x2 as isize - x1 as isize;
+                    let dy = y2 as isize - y1 as isize;
+
+                    let step_x = if dx > 0 { 1 } else { -1 };
+                    let step_y = if dy > 0 { 1 } else { -1 };
+
+                    let dx = dx.abs();
+                    let dy = dy.abs();
+
+                    if dx > dy {
+                        let mut error = dx / 2;
+                        for _ in 0..dx {
+                            x += step_x;
+                            error += dy;
+                            if error >= dx {
+                                y += step_y;
+                                error -= dx;
+                            }
+                            if (x, y) != (x1 as isize, y1 as isize)
+                                && (x, y) != (x2 as isize, y2 as isize)
+                            {
+                                grid[y as usize][x as usize] = '.';
+                            }
+                        }
+                    } else {
+                        let mut error = dy / 2;
+                        for _ in 0..dy {
+                            y += step_y;
+                            error += dx;
+                            if error >= dy {
+                                x += step_x;
+                                error -= dy;
+                            }
+                            if (x, y) != (x1 as isize, y1 as isize)
+                                && (x, y) != (x2 as isize, y2 as isize)
+                            {
+                                grid[y as usize][x as usize] = '.';
+                            }
                         }
                     }
                 }

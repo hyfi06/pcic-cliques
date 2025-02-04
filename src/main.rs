@@ -51,39 +51,33 @@ pub fn is_clique(subgraph: usize, adjacency: &Vec<usize>) -> bool {
 fn find_cliques(graph: &mut Graph) {
     let n = graph.adjacency.len();
     let start_time = Instant::now();
-    graph.iter_subgraph().for_each(|subgraph| {
-        if is_clique(subgraph, &graph.adjacency) {
+
+    let cliques: Vec<(usize, u32, u32)> = graph
+        .iter_subgraph()
+        .par_bridge()
+        .filter(|subgraph| is_clique(*subgraph, &graph.adjacency))
+        .map(|subgraph| {
             let mut nodes: Vec<u32> = Vec::new();
             for i in 0..n {
                 if (subgraph >> i) & 1 == 1 {
                     nodes.push(i as u32);
                 }
             }
-            graph
-                .cliques
-                .push((subgraph, subgraph.count_ones(), nodes.iter().sum()));
-        }
-    });
-    let max_clique = graph
-        .cliques
-        .iter()
-        .map(|(_, size, _)| *size)
-        .max()
-        .unwrap_or(0);
-    let max_weight = graph
-        .cliques
+            (subgraph, subgraph.count_ones(), nodes.iter().sum())
+        })
+        .collect();
+    let max_clique = cliques.iter().map(|(_, size, _)| *size).max().unwrap_or(0);
+    let max_weight = cliques
         .iter()
         .map(|(_, _, weight)| *weight)
         .max()
         .unwrap_or(0);
-    let max_cliques: Vec<&usize> = graph
-        .cliques
+    let max_cliques: Vec<&usize> = cliques
         .iter()
         .filter(|(_, size, _)| *size == max_clique)
         .map(|(subgraph, _, _)| subgraph)
         .collect();
-    let max_weight_cliques: Vec<&usize> = graph
-        .cliques
+    let max_weight_cliques: Vec<&usize> = cliques
         .iter()
         .filter(|(_, _, weight)| *weight == max_weight)
         .map(|(subgraph, _, _)| subgraph)
@@ -91,7 +85,7 @@ fn find_cliques(graph: &mut Graph) {
     let elapsed_time = start_time.elapsed();
 
     println!("{}", "=".repeat(50));
-    // graph.print_ascii_graph(50);
+    graph.print_ascii_graph(80);
     println!("{:?}", graph.nodes);
     println!("Cardinalidad de cliques máximos: {}.", max_clique);
     print!("{} cliques máximos: ", max_cliques.len());
