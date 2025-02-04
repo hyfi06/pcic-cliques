@@ -94,6 +94,7 @@ impl Graph {
             println!("{}", row.iter().collect::<String>());
         }
     }
+    
     pub fn iter_subgraph(&self) -> impl Iterator<Item = usize> {
         let mut subgraph: usize = 0;
         let max_state: usize = 1 << self.adjacency.len();
