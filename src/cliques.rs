@@ -25,8 +25,33 @@ pub fn is_clique(subgraph: usize, adjacency: &Vec<usize>) -> bool {
     state
 }
 
-pub fn backtrack() {
+pub fn backtrack_find_cliques(graph: &Graph) {
+    let mut subgraph: usize = 0;
+    let n = graph.nodes.len();
+    let mut cliques: Vec<usize> = Vec::new();
+    let start = 0;
+    let start_time = Instant::now();
+    backtrack(n, start, &mut subgraph, &mut cliques, graph);
+    let elapsed_time: Duration = start_time.elapsed();
+    print_result(cliques, graph, elapsed_time);
+}
 
+fn backtrack(
+    n: usize,
+    start: usize,
+    subgraph: &mut usize,
+    cliques: &mut Vec<usize>,
+    graph: &Graph,
+) {
+    if !is_clique(*subgraph, &graph.adjacency) {
+        return;
+    }
+    cliques.push(*subgraph);
+    for i in start..n {
+        *subgraph |= 1 << i;
+        backtrack(n, i + 1, subgraph, cliques, graph);
+        *subgraph &= !(1 << i);
+    }
 }
 
 pub fn find_cliques(graph: &Graph) {
